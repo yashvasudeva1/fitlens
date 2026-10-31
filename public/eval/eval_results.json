@@ -1,0 +1,11 @@
+{
+  "measuredAt": "2026-10-31T20:53:21.219Z",
+  "rubricVersion": "v2.0",
+  "verdictAgreement": "3/3 (100%)",
+  "citationCoveragePercent": "100% (25/25)",
+  "repeatabilityVariance": "0.0%",
+  "unknownHandlingStatus": "Pass (Insufficient info gated <4 dims)",
+  "kbUrlsTotal": 28,
+  "kbUrlsBroken": 0,
+  "samplesEvaluated": 3
+}

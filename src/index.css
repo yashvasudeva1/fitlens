@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f5f5f1;
+  --ink: #121212;
+  --graphite: #2c2c2a;
+  --rule: #dcdcd5;
+  --blueprint: #2D382D;
+  --blueprint-soft: #E8ECE8;
+  --grid-dot: #d3d3cb;
+  --secondary: #ebebe5;
+  --muted-foreground: #66665f;
+  --border: #e1e1da;
+}
+
+@theme {
+  --font-display: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-paper: #f5f5f1;
+  --color-ink: #121212;
+  --color-graphite: #2c2c2a;
+  --color-rule: #dcdcd5;
+  --color-blueprint: #2D382D;
+  --color-blueprint-soft: #E8ECE8;
+  --color-secondary: #ebebe5;
+  --color-muted: #66665f;
+}
+
+/* Architectural blueprint grid & drafting surface */
+.bg-arch-grid {
+  background-size: 28px 28px;
+  background-image: 
+    linear-gradient(to right, rgba(45, 56, 45, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(45, 56, 45, 0.06) 1px, transparent 1px);
+}
+
+.bg-arch-dots {
+  background-image: radial-gradient(#d3d3cb 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Tabular numerals enforcement */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f5f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #c8c8bf;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2D382D;
+}
+
+/* Print specific styles for single-column PDF export */
+@media print {
+  body {
+    background: white !important;
+    color: #121212 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+}

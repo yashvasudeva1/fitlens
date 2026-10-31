@@ -1,0 +1,39 @@
+# =============================================================================
+# Docker Compose for FitLens Deployment (Vultr VPS / Cloud Compute)
+# =============================================================================
+
+services:
+  fitlens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fitlens:latest
+    container_name: fitlens-app
+    restart: unless-stopped
+    ports:
+      # Port mapping: change host port if running behind Nginx on port 80/443
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - TIGERDATA_DATABASE_URL=${TIGERDATA_DATABASE_URL:-}
+      - APP_URL=${APP_URL:-}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # Persistent host directory for the prospect database so records persist across redeployments
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

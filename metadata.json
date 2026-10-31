@@ -1,0 +1,8 @@
+{
+  "name": "FitLens IOMETE Account Fit Analyzer",
+  "description": "Enterprise qualification and account fit analyzer for IOMETE on Kubernetes with Google Gemini multi-model intelligence and TigerData persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
