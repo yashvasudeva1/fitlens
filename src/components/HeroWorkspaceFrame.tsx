@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CAPABILITY_MAP, FitDimensionId } from '../data/iometeCapabilities';
 import { BLANK_MD_TEMPLATE, SampleCompanyAnalysis } from '../data/newSampleCompanies';
 import {
@@ -32,7 +32,8 @@ import {
   Play,
   Pause,
   Network,
-  Database
+  Database,
+  ShieldCheck
 } from 'lucide-react';
 import { TigerGraphDatabaseSection } from './TigerGraphDatabaseSection';
 
@@ -83,6 +84,12 @@ export const HeroWorkspaceFrame: React.FC<HeroWorkspaceFrameProps> = ({
   onRestrictedAction
 }) => {
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>('overview');
+
+  useEffect(() => {
+    if (persona === 'general_user' && activeTab === 'database') {
+      setActiveTab('overview');
+    }
+  }, [persona, activeTab]);
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string>(
     company.evidenceItems[0]?.id || ''
   );
@@ -297,18 +304,20 @@ export const HeroWorkspaceFrame: React.FC<HeroWorkspaceFrameProps> = ({
                 <span className="font-mono-tabular text-[11px]">{inputQuality.coverageScore}%</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveTab('database')}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
-                  activeTab === 'database'
-                    ? 'bg-[#1A1612] text-[#F5F4F0]'
-                    : 'text-[#524E48] hover:bg-[#E8E7E0] hover:text-[#1A1612]'
-                }`}
-              >
-                <span>TigerGraph &amp; DB</span>
-                <span className="font-mono-tabular text-[10px] text-[#5A9A6B]">Cloud</span>
-              </button>
+              {persona === 'iomete_rep' && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('database')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                    activeTab === 'database'
+                      ? 'bg-[#1A1612] text-[#F5F4F0]'
+                      : 'text-[#524E48] hover:bg-[#E8E7E0] hover:text-[#1A1612]'
+                  }`}
+                >
+                  <span>TigerGraph &amp; DB</span>
+                  <span className="font-mono-tabular text-[10px] text-[#5A9A6B]">Cloud</span>
+                </button>
+              )}
             </nav>
 
             {/* Input Quality Graphic Meter in Sidebar (PRD 4.2 P0) */}
@@ -746,24 +755,41 @@ export const HeroWorkspaceFrame: React.FC<HeroWorkspaceFrameProps> = ({
                         </label>
                       </div>
 
-                      <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
-                        <div>
-                          <div className="w-8 h-8 rounded-lg bg-[#1A1612] text-white flex items-center justify-center mb-3">
-                            <Database className="w-4 h-4 text-[#8CE0A1]" />
+                      {persona === 'iomete_rep' ? (
+                        <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+                          <div>
+                            <div className="w-8 h-8 rounded-lg bg-[#1A1612] text-white flex items-center justify-center mb-3">
+                              <Database className="w-4 h-4 text-[#8CE0A1]" />
+                            </div>
+                            <h4 className="text-sm font-semibold text-[#1A1612]">4. TigerData Cloud DB</h4>
+                            <p className="text-xs text-[#6B665F] mt-1.5 leading-relaxed">
+                              Access accounts previously saved to the managed Timescale PostgreSQL cloud database.
+                            </p>
                           </div>
-                          <h4 className="text-sm font-semibold text-[#1A1612]">4. TigerData Cloud DB</h4>
-                          <p className="text-xs text-[#6B665F] mt-1.5 leading-relaxed">
-                            Access accounts previously saved to the managed Timescale PostgreSQL cloud database.
-                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab('database')}
+                            className="mt-4 w-full py-2 px-3 rounded-lg border border-[#E3E3DE] bg-white text-[#1A1612] hover:border-[#1A1612] text-xs font-medium transition-colors cursor-pointer"
+                          >
+                            Open Database Tab
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setActiveTab('database')}
-                          className="mt-4 w-full py-2 px-3 rounded-lg border border-[#E3E3DE] bg-white text-[#1A1612] hover:border-[#1A1612] text-xs font-medium transition-colors cursor-pointer"
-                        >
-                          Open Database Tab
-                        </button>
-                      </div>
+                      ) : (
+                        <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+                          <div>
+                            <div className="w-8 h-8 rounded-lg bg-[#1A1612] text-white flex items-center justify-center mb-3">
+                              <ShieldCheck className="w-4 h-4 text-[#8CE0A1]" />
+                            </div>
+                            <h4 className="text-sm font-semibold text-[#1A1612]">4. Verified Doc Citations</h4>
+                            <p className="text-xs text-[#6B665F] mt-1.5 leading-relaxed">
+                              Every technical claim links to official documentation on docs.iomete.com with zero hallucination.
+                            </p>
+                          </div>
+                          <div className="mt-4 pt-3 border-t border-[#E3E3DE] text-[11px] font-mono-tabular text-[#5A9A6B]">
+                            28 Documented Capabilities
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -1357,13 +1383,34 @@ export const HeroWorkspaceFrame: React.FC<HeroWorkspaceFrameProps> = ({
             )}
 
             {activeTab === 'database' && (
-              <TigerGraphDatabaseSection
-                company={company}
-                scoreResult={scoreResult}
-                onLoadCustomMarkdown={onRunCustomAnalysis}
-                persona={persona}
-                onRestrictedAction={onRestrictedAction}
-              />
+              persona === 'iomete_rep' ? (
+                <TigerGraphDatabaseSection
+                  company={company}
+                  scoreResult={scoreResult}
+                  onLoadCustomMarkdown={onRunCustomAnalysis}
+                  persona={persona}
+                  onRestrictedAction={onRestrictedAction}
+                />
+              ) : (
+                <div className="p-12 text-center bg-[#FAF9F6] border border-[#E3E3DE] rounded-2xl">
+                  <div className="w-12 h-12 rounded-full bg-[#D9733A]/15 text-[#D9733A] flex items-center justify-center mx-auto mb-4">
+                    <ShieldAlert className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-base font-semibold text-[#1A1612]">
+                    Database Restricted to IOMETE Sales Representatives
+                  </h3>
+                  <p className="text-xs text-[#6B665F] max-w-md mx-auto mt-2 leading-relaxed">
+                    The TigerData Cloud PostgreSQL database and customer knowledge graph are reserved for authorized IOMETE sales reps and solutions architects. General users can upload or paste prospect markdown profiles and inspect qualification results.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('input')}
+                    className="mt-5 px-5 py-2 rounded-full bg-[#1A1612] text-white text-xs font-medium hover:bg-[#332E28] transition-colors cursor-pointer"
+                  >
+                    Go to Markdown Input Tab
+                  </button>
+                </div>
+              )
             )}
           </div>
         </div>

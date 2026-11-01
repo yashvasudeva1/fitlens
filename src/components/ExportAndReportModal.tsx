@@ -105,8 +105,14 @@ export const ExportAndReportModal: React.FC<ExportAndReportModalProps> = ({
 
             <button
               type="button"
+              disabled={persona === 'general_user'}
               onClick={handleDownloadMarkdown}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#5A9A6B] text-xs font-medium text-white hover:bg-[#4B855B]"
+              title={persona === 'general_user' ? 'Export restricted to IOMETE Sales Reps' : 'Download report in Markdown'}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
+                persona === 'general_user'
+                  ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                  : 'bg-[#5A9A6B] text-white hover:bg-[#4B855B] cursor-pointer'
+              }`}
             >
               <Download className="w-3.5 h-3.5" />
               <span>Download .md</span>
@@ -114,8 +120,14 @@ export const ExportAndReportModal: React.FC<ExportAndReportModalProps> = ({
 
             <button
               type="button"
+              disabled={persona === 'general_user'}
               onClick={handlePrintPdf}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F3F1EC] text-[#1C1916] text-xs font-semibold hover:bg-white"
+              title={persona === 'general_user' ? 'Export restricted to IOMETE Sales Reps' : 'Print / Save PDF report'}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                persona === 'general_user'
+                  ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                  : 'bg-[#F3F1EC] text-[#1C1916] hover:bg-white cursor-pointer'
+              }`}
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print / Save PDF</span>
@@ -144,7 +156,7 @@ export const ExportAndReportModal: React.FC<ExportAndReportModalProps> = ({
               }}
               className="px-3 py-1 rounded-md bg-[#1A1612] text-white text-[11px] font-medium hover:bg-[#332E28] transition-colors"
             >
-              Switch to IOMETE Team Persona
+              Switch to IOMETE Sales Rep Persona
             </button>
           </div>
         )}

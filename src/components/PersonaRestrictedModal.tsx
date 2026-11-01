@@ -36,10 +36,10 @@ export const PersonaRestrictedModal: React.FC<PersonaRestrictedModalProps> = ({
               <span className="text-xs text-[#D9733A] font-medium">Internal Feature</span>
             </div>
             <h3 id="persona-modal-title" className="font-serif-display text-xl font-normal text-[#1A1612] mt-1.5">
-              Export Restricted in General User Mode
+              {actionAttempted.includes("Export") ? "Export Restricted to Sales Reps" : "Feature Restricted to Sales Reps"}
             </h3>
             <p className="text-xs text-[#524E48] mt-2 leading-relaxed">
-              {actionAttempted} and managing CRM database records are restricted to verified <strong>IOMETE Team Members</strong>.
+              {actionAttempted} and managing CRM database records are restricted to verified <strong>IOMETE Sales Representatives</strong>.
             </p>
           </div>
         </div>
@@ -50,7 +50,7 @@ export const PersonaRestrictedModal: React.FC<PersonaRestrictedModalProps> = ({
           </div>
           <div className="flex items-start gap-2 text-xs text-[#524E48]">
             <CheckCircle2 className="w-4 h-4 text-[#5A9A6B] shrink-0 mt-0.5" />
-            <span>Switch to the <strong>IOMETE Team Persona</strong> to instantly unlock unredacted Markdown exports, print-ready PDF reports, CSV database downloads, and TigerData database persistence.</span>
+            <span>Switch to the <strong>IOMETE Sales Rep Persona</strong> to unlock unredacted Markdown exports, print-ready PDF reports, and the TigerData cloud database.</span>
           </div>
         </div>
 
@@ -71,7 +71,7 @@ export const PersonaRestrictedModal: React.FC<PersonaRestrictedModalProps> = ({
             className="inline-flex items-center gap-2 px-5 py-2 text-xs font-medium bg-[#1A1612] text-[#F5F4F0] rounded-full hover:bg-[#332E28] transition-colors cursor-pointer shadow-xs"
           >
             <ShieldCheck className="w-4 h-4 text-[#8CE0A1]" />
-            <span>Switch to IOMETE Team Persona</span>
+            <span>Switch to IOMETE Sales Rep Persona</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
