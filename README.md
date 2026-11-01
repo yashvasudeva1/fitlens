@@ -142,4 +142,4 @@ FitLens includes dedicated verification suites:
 
 ## License
 
-Private and proprietary. Developed for FitLens IOMETE Account Fit Analyzer.
+Private license and proprietary. Developed for FitLens IOMETE Account Fit Analyzer.
