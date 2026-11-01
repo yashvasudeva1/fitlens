@@ -61,7 +61,7 @@ FitLens operates with zero static or mock prospect records:
 4. Populate your `.env` configuration:
    - GEMINI_API_KEY: Your Google AI Studio API key.
    - TIGERDATA_DATABASE_URL: Your TigerData / Timescale Cloud PostgreSQL connection string.
-   - PORT: Default is 3000.
+   - PORT: Default is 3000 or use 5000.
    - HOST: Default is 0.0.0.0.
 
 ### Running in Development
