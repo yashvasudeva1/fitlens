@@ -100,7 +100,7 @@ export async function initTigerData(): Promise<boolean> {
       `);
 
       isInitialized = true;
-      console.log('✓ TigerData (Tiger Cloud PostgreSQL) connected and schema verified successfully.');
+      console.log('[OK] TigerData (Tiger Cloud PostgreSQL) connected and schema verified successfully.');
       return true;
     } finally {
       client.release();

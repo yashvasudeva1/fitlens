@@ -1,0 +1,6 @@
+{
+  "name": "FitLens - IOMETE Fit Analyzer",
+  "description": "Source-grounded account qualification, workflow-to-capability mapping, and transparent fit scoring for the IOMETE Sovereign Data Lakehouse.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
