@@ -13,6 +13,7 @@ import {
 import {
   DEFAULT_WEIGHTS,
   DimensionWeights,
+  EMPTY_COMPANY_ANALYSIS,
   checkInputQuality,
   computeFitScore,
   parseCustomMarkdownToAnalysis,
@@ -32,15 +33,18 @@ import {
   Play,
   ShieldCheck,
   User,
-  Sparkles
+  Sparkles,
+  Plus,
+  RotateCcw,
+  Upload
 } from 'lucide-react';
 
 export type UserPersona = 'iomete_rep' | 'general_user';
 
 export default function App() {
-  const [selectedSampleId, setSelectedSampleId] = useState<string>('aegis-bank');
+  const [selectedSampleId, setSelectedSampleId] = useState<string>('');
   const [customCompany, setCustomCompany] = useState<SampleCompanyAnalysis | null>(null);
-  const [customMarkdown, setCustomMarkdown] = useState<string>(SAMPLE_COMPANIES[0].rawMarkdown);
+  const [customMarkdown, setCustomMarkdown] = useState<string>('');
   const [isAnalyzingCustom, setIsAnalyzingCustom] = useState<boolean>(false);
 
   // Two Personas: IOMETE Rep vs General User
@@ -57,8 +61,18 @@ export default function App() {
     if (selectedSampleId === 'custom-account' && customCompany) {
       return customCompany;
     }
-    return SAMPLE_COMPANIES.find((c) => c.id === selectedSampleId) || SAMPLE_COMPANIES[0];
+    if (selectedSampleId) {
+      const found = SAMPLE_COMPANIES.find((c) => c.id === selectedSampleId);
+      if (found) return found;
+    }
+    return customCompany || EMPTY_COMPANY_ANALYSIS;
   }, [selectedSampleId, customCompany]);
+
+  const handleClearWorkspace = () => {
+    setSelectedSampleId('');
+    setCustomCompany(null);
+    setCustomMarkdown('');
+  };
 
   const scoreResult = useMemo(
     () =>
@@ -255,72 +269,122 @@ export default function App() {
               </p>
             </div>
 
-            {/* Interactive Benchmark Account Switcher Bar */}
+            {/* Dynamic Prospect Workspace Status and Action Bar */}
             <div className="mt-8 mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div
-                role="group"
-                aria-label="Select prospect account profile"
-                className="flex flex-wrap items-center gap-2"
-              >
-                {SAMPLE_COMPANIES.map((sample, idx) => {
-                  const isSelected = selectedSampleId === sample.id;
-                  const sScore = computeFitScore(
-                    sample.evidenceItems,
-                    weights,
-                    sample.disqualifiers,
-                    sample.unknowns
-                  );
-                  return (
-                    <button
-                      key={sample.id}
-                      type="button"
-                      onClick={() => handleSelectSample(sample.id)}
-                      className={`px-4 py-2 rounded-full text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap shrink-0 border cursor-pointer ${
-                        isSelected
-                          ? 'bg-[#1A1612] text-[#F5F4F0] border-[#1A1612]'
-                          : 'bg-[#FAF9F6] text-[#1A1612] border-[#E3E3DE] hover:border-[#8C867E]'
-                      }`}
-                    >
-                      <span className="font-mono-tabular opacity-70">0{idx + 1}</span>
-                      <span>{sample.name.split('&')[0].trim()}</span>
-                      <span
-                        className={`font-mono-tabular text-[11px] ${
-                          isSelected
-                            ? 'text-[#8CE0A1]'
-                            : sScore.verdictBand === 'Strong fit'
-                            ? 'text-[#2E6B40]'
-                            : sScore.verdictBand === 'Possible fit (needs discovery)'
-                            ? 'text-[#5B7C99]'
-                            : 'text-[#D9733A]'
-                        }`}
-                      >
-                        {sScore.overallScore}/100 · {sScore.verdictBand.split(' ')[0]}
-                      </span>
-                    </button>
-                  );
-                })}
+              <div className="flex flex-wrap items-center gap-2">
+                {activeCompany.id === 'empty-account' ? (
+                  <>
+                    <div className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-[#EFEFE9] text-[#6B665F] border border-[#E3E3DE] flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#8C867E]" />
+                      <span>Workspace Empty · Ready for Prospect Data</span>
+                    </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!customCompany) {
-                      handleRunCustomAnalysis(BLANK_MD_TEMPLATE, 'Custom Prospect Account');
-                    } else {
-                      setSelectedSampleId('custom-account');
-                    }
-                  }}
-                  className={`px-4 py-2 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 border cursor-pointer ${
-                    selectedSampleId === 'custom-account'
-                      ? 'bg-[#1A1612] text-[#F5F4F0] border-[#1A1612]'
-                      : 'bg-[#FAF9F6] text-[#524E48] border-dashed border-[#8C867E] hover:text-[#1A1612]'
-                  }`}
-                >
-                  <span>+ Custom .md Profile</span>
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleRunCustomAnalysis(BLANK_MD_TEMPLATE, 'New Prospect Dossier');
+                        setCustomMarkdown(BLANK_MD_TEMPLATE);
+                      }}
+                      className="px-4 py-1.5 rounded-full text-xs font-medium bg-[#1A1612] text-[#F5F4F0] hover:bg-[#332E28] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Load 7-Section Blank Schema</span>
+                    </button>
+
+                    <label className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-[#FAF9F6] text-[#524E48] border border-[#E3E3DE] hover:border-[#8C867E] hover:text-[#1A1612] transition-all flex items-center gap-1.5 cursor-pointer">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload .md File</span>
+                      <input
+                        type="file"
+                        accept=".md,.txt"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              const content = ev.target?.result as string;
+                              if (content) {
+                                setCustomMarkdown(content);
+                                handleRunCustomAnalysis(content, file.name.replace(/\.[^/.]+$/, ''));
+                              }
+                            };
+                            reader.readAsText(file);
+                          }
+                        }}
+                      />
+                    </label>
+
+                    <div className="relative inline-block">
+                      <select
+                        value={selectedSampleId}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleSelectSample(e.target.value);
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#FAF9F6] text-[#6B665F] border border-[#E3E3DE] hover:border-[#8C867E] transition-all cursor-pointer outline-none"
+                        aria-label="Load benchmark evaluation profile"
+                      >
+                        <option value="">Load Benchmark Test Case...</option>
+                        {SAMPLE_COMPANIES.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} ({s.expectedVerdict})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="px-4 py-1.5 rounded-full text-xs font-medium bg-[#1A1612] text-[#F5F4F0] flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#8CE0A1]" />
+                      <span className="font-semibold">{activeCompany.name}</span>
+                      <span className="opacity-70">({activeCompany.deploymentBadge})</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleClearWorkspace}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#FAF9F6] text-[#D9733A] border border-[#E3E3DE] hover:border-[#D9733A] transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Clear Workspace</span>
+                    </button>
+
+                    <div className="relative inline-block">
+                      <select
+                        value={selectedSampleId}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleSelectSample(e.target.value);
+                          } else {
+                            handleClearWorkspace();
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#FAF9F6] text-[#6B665F] border border-[#E3E3DE] hover:border-[#8C867E] transition-all cursor-pointer outline-none"
+                        aria-label="Switch account profile"
+                      >
+                        <option value="custom-account">Active Custom Prospect</option>
+                        {SAMPLE_COMPANIES.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            Benchmark: {s.name} ({s.expectedVerdict})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="text-xs font-mono-tabular text-[#6B665F]">
-                Expected: <strong className="text-[#1A1612]">{activeCompany.expectedVerdict}</strong> · Actual: <strong className="text-[#1A1612]">{scoreResult.verdictBand}</strong>
+                {activeCompany.id === 'empty-account' ? (
+                  <span>Status: <strong className="text-[#1A1612]">Awaiting Prospect Input</strong></span>
+                ) : (
+                  <span>
+                    Verdict: <strong className="text-[#1A1612]">{scoreResult.verdictBand}</strong> ({scoreResult.overallScore}/100) · Confidence: <strong className="text-[#1A1612]">{scoreResult.confidenceLevel}</strong>
+                  </span>
+                )}
               </div>
             </div>
 
@@ -415,65 +479,62 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 7 Interactive Demo Script Cards */}
+              {/* 6 Interactive Platform Capability Cards */}
               <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => {
-                    handleSelectSample('aegis-bank');
                     document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                   className="p-4 rounded-xl bg-[#24201C] border border-white/10 hover:border-white/25 text-left transition-colors cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between font-mono-tabular text-xs text-[#8CE0A1]">
-                    <span>0:00 - 0:20</span>
-                    <span>Strong Fit</span>
+                    <span>Real-time</span>
+                    <span>AI Discovery</span>
                   </div>
                   <div className="text-sm font-semibold text-white mt-2">
-                    1. Aegis Bank (91/100)
+                    1. Live Gemini AI Research
                   </div>
                   <p className="text-xs text-[#A8A49C] mt-1 leading-snug">
-                    Air-gapped OpenShift &amp; MinIO on-prem. 100% agreement.
+                    Grounds tech stacks and data volumes directly via real-time Google Search.
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => {
-                    handleSelectSample('pulsenote-startup');
-                    document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="p-4 rounded-xl bg-[#24201C] border border-white/10 hover:border-white/25 text-left transition-colors cursor-pointer flex flex-col justify-between"
-                >
-                  <div className="flex items-center justify-between font-mono-tabular text-xs text-[#D9733A]">
-                    <span>0:20 - 0:40</span>
-                    <span>Negative Control</span>
-                  </div>
-                  <div className="text-sm font-semibold text-white mt-2">
-                    2. PulseNote SaaS (16/100)
-                  </div>
-                  <p className="text-xs text-[#A8A49C] mt-1 leading-snug">
-                    Small data (&lt;50GB), no DevOps. Disqualifiers say NO.
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSelectSample('verve-retail');
-                    document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('rubric')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                   className="p-4 rounded-xl bg-[#24201C] border border-white/10 hover:border-white/25 text-left transition-colors cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between font-mono-tabular text-xs text-[#5B7C99]">
-                    <span>0:40 - 1:00</span>
-                    <span>Unknown Handling</span>
+                    <span>Temp 0.0</span>
+                    <span>Pure Code</span>
                   </div>
                   <div className="text-sm font-semibold text-white mt-2">
-                    3. Verve Retail (64/100)
+                    2. Deterministic 7-Dimension Rubric
                   </div>
                   <p className="text-xs text-[#A8A49C] mt-1 leading-snug">
-                    Missing ingestion &amp; K8s excluded from average.
+                    Auditable weights across Sovereignty, Scale, Open Formats, and Governance.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="p-4 rounded-xl bg-[#24201C] border border-white/10 hover:border-white/25 text-left transition-colors cursor-pointer flex flex-col justify-between"
+                >
+                  <div className="flex items-center justify-between font-mono-tabular text-xs text-[#8CE0A1]">
+                    <span>28 Verified Docs</span>
+                    <span>Knowledge Base</span>
+                  </div>
+                  <div className="text-sm font-semibold text-white mt-2">
+                    3. Evidence-to-Capability Graph
+                  </div>
+                  <p className="text-xs text-[#A8A49C] mt-1 leading-snug">
+                    Every prospect claim links to verified documentation on docs.iomete.com.
                   </p>
                 </button>
 
@@ -485,34 +546,34 @@ export default function App() {
                   className="p-4 rounded-xl bg-[#24201C] border border-white/10 hover:border-white/25 text-left transition-colors cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between font-mono-tabular text-xs text-[#D6D3CD]">
-                    <span>1:00 - 1:20</span>
+                    <span>Interactive</span>
                     <span>Transparent Math</span>
                   </div>
                   <div className="text-sm font-semibold text-white mt-2">
                     4. What-If Rubric Sliders
                   </div>
                   <p className="text-xs text-[#A8A49C] mt-1 leading-snug">
-                    Pure code computes scores live with dynamic weighting.
+                    Pure code computes scores live with dynamic weighting adjustments.
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => {
-                    setAudience('buyer');
+                    setAudience(audience === 'rep' ? 'buyer' : 'rep');
                     document.getElementById('audience-studio')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                   className="p-4 rounded-xl bg-[#24201C] border border-white/10 hover:border-white/25 text-left transition-colors cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between font-mono-tabular text-xs text-[#D6D3CD]">
-                    <span>1:20 - 1:40</span>
-                    <span>Dual Audience</span>
+                    <span>Dual Lens</span>
+                    <span>Persona Studio</span>
                   </div>
                   <div className="text-sm font-semibold text-white mt-2">
                     5. Rep Call &amp; Buyer Memo
                   </div>
                   <p className="text-xs text-[#A8A49C] mt-1 leading-snug">
-                    Same evidence, two distinct stakeholder lenses.
+                    Translates technical fit into 15-min call track and CFO justification memo.
                   </p>
                 </button>
 
@@ -522,14 +583,14 @@ export default function App() {
                   className="p-4 rounded-xl bg-[#24201C] border border-white/10 hover:border-white/25 text-left transition-colors cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between font-mono-tabular text-xs text-[#8CE0A1]">
-                    <span>1:40 - 2:00</span>
                     <span>Audit Ready</span>
+                    <span>PDF &amp; Markdown</span>
                   </div>
                   <div className="text-sm font-semibold text-white mt-2">
                     6. Export Report (.md / PDF)
                   </div>
                   <p className="text-xs text-[#A8A49C] mt-1 leading-snug">
-                    Printable single-column brief with citation trails.
+                    Printable single-column brief with verified citation trails.
                   </p>
                 </button>
               </div>

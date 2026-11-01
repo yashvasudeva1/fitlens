@@ -657,178 +657,282 @@ export const HeroWorkspaceFrame: React.FC<HeroWorkspaceFrameProps> = ({
                   )}
                 </div>
 
-                {/* Stage 3: Executive Audio Briefing with gemini-3.8-flash-lite-tts */}
-                <div className="p-4 rounded-xl bg-[#1C1916] text-[#F3F1EC] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <Volume2 className="w-5 h-5 text-[#8CE0A1]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-xs font-semibold text-white">
-                          60-Second Audio Pitch Briefing
-                        </h4>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-tabular bg-[#5A9A6B]/20 text-[#8CE0A1]">
-                          gemini-3.8-flash-lite-tts
-                        </span>
+                {company.evidenceItems.length === 0 ? (
+                  /* Onboarding & Quick-Start Hub when no prospect is loaded */
+                  <div className="p-8 rounded-2xl bg-white border border-[#E3E3DE] shadow-xs">
+                    <div className="max-w-2xl">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-[#EFEFE9] text-[#6B665F] mb-3">
+                        <Sparkles className="w-3.5 h-3.5 text-[#2E6B40]" />
+                        <span>Workspace Ready · Live Gemini Engine Active</span>
                       </div>
-                      <p className="text-[11px] text-[#A8A49C] mt-0.5">
-                        Architectural advisor voice pitch covering {company.name}&apos;s qualification score and key objections.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    {audioDataUrl && (
-                      <audio controls src={audioDataUrl} className="h-8 max-w-[200px]" autoPlay={isPlayingAudio} />
-                    )}
-                    <button
-                      type="button"
-                      onClick={handleGenerateOrPlayAudio}
-                      disabled={isGeneratingAudio}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#5A9A6B] text-white hover:bg-[#4B855B] text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>{isGeneratingAudio ? 'Synthesizing Audio...' : audioDataUrl ? 'Replay Briefing' : 'Generate &amp; Listen'}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-                {/* Left 7 cols: Graphic Workflow-to-Capability Node Flow First + Compact Visual Provenance Strip */}
-                <div className="xl:col-span-7 flex flex-col gap-5">
-                  <div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                      <div>
-                        <h3 className="text-sm font-semibold text-[#1A1612]">
-                          Interactive Evidence Trail: Prospect Workflows &rarr; IOMETE Capabilities
-                        </h3>
-                        <p className="text-xs text-[#6B665F]">
-                          {scoreResult.oneSentenceReason}
-                        </p>
-                      </div>
-                      <span className="font-mono-tabular text-[11px] text-[#6B665F]">
-                        Click any node to inspect proof
-                      </span>
-                    </div>
-                    <WorkflowCapabilityFlowGraph
-                      evidenceItems={company.evidenceItems}
-                      selectedEvidenceId={effectiveEvidenceId}
-                      onSelectEvidence={setSelectedEvidenceId}
-                    />
-                  </div>
-
-                  {/* Graphic 3-Pillar Provenance Breakdown (Stated · Sourced · Assumed) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {company.executiveSummaryPlain.slice(0, 3).map((line, idx) => {
-                      const cap = line.capabilityId ? CAPABILITY_MAP[line.capabilityId] : undefined;
-                      const badgeColor =
-                        line.label === 'Sourced'
-                          ? 'text-[#2E6B40] bg-[#5A9A6B]/15'
-                          : line.label === 'Assumed'
-                          ? 'text-[#5B7C99] bg-[#5B7C99]/15'
-                          : 'text-[#1A1612] bg-[#E3E3DE]';
-                      return (
-                        <div
-                          key={idx}
-                          className="p-3.5 rounded-xl bg-[#F3F3EE] border border-[#E3E3DE] flex flex-col justify-between gap-2"
-                        >
-                          <div>
-                            <span
-                              className={`inline-block font-mono-tabular text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${badgeColor}`}
-                            >
-                              {line.label}
-                            </span>
-                            <p className="text-xs text-[#3D3934] mt-2 leading-relaxed line-clamp-3">
-                              {line.text}
-                            </p>
-                          </div>
-                          {cap && (
-                            <a
-                              href={cap.docUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 font-mono-tabular text-[11px] font-medium text-[#1A1612] hover:underline pt-1.5 border-t border-[#E3E3DE]"
-                            >
-                              <span className="truncate">{cap.name}</span>
-                              <ExternalLink className="w-3 h-3 shrink-0" />
-                            </a>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Right 5 cols: 7-Dimension Radar Chart + Live What-If Sliders */}
-                <div className="xl:col-span-5 bg-[#F3F3EE] border border-[#E3E3DE] rounded-xl p-4 flex flex-col gap-4">
-                  <div className="flex items-center justify-between border-b border-[#E3E3DE] pb-2.5">
-                    <div>
-                      <h3 className="text-sm font-semibold text-[#1A1612]">
-                        7-Dimension Radar &amp; Live What-If Rubric
+                      <h3 className="font-serif-display text-2xl sm:text-3xl font-normal text-[#1A1612]">
+                        Qualify Any Enterprise Account in Minutes
                       </h3>
-                      <p className="text-[11px] text-[#6B665F]">
-                        Drag weights to recompute score live. Unknowns are excluded.
+                      <p className="text-sm text-[#524E48] mt-2 leading-relaxed">
+                        FitLens analyzes prospect architectures against documented IOMETE capabilities, computes verifiable fit scores via a 7-dimension deterministic rubric, and generates sales rep briefs with zero hallucination.
                       </p>
                     </div>
-                    {weightsModified && (
-                      <button
-                        type="button"
-                        onClick={onResetWeights}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium bg-white border border-[#E3E3DE] rounded-md text-[#1A1612] hover:bg-[#FAF9F6] whitespace-nowrap shrink-0"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                        <span>Reset Weights</span>
-                      </button>
-                    )}
-                  </div>
 
-                  <SevenDimensionRadarChart
-                    dimensionScores={scoreResult.dimensionScores}
-                  />
-
-                  {/* Compact Live What-If Sliders right below Radar */}
-                  <div className="flex flex-col gap-2.5 pt-2 border-t border-[#E3E3DE]">
-                    {scoreResult.dimensionScores.map((dim) => {
-                      const isUnk = dim.status === 'unknown';
-                      return (
-                        <div key={dim.dimensionId} className="flex flex-col gap-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-medium text-[#1A1612] flex items-center gap-1.5">
-                              <span>{dim.name}</span>
-                              {isUnk && (
-                                <span className="font-mono-tabular text-[10px] text-[#D9733A]">
-                                  [UNKNOWN GAP]
-                                </span>
-                              )}
-                            </span>
-                            <div className="font-mono-tabular text-[11px] text-[#6B665F] flex items-center gap-2">
-                              <span>Weight: {dim.weight}%</span>
-                              <span>·</span>
-                              <strong className={isUnk ? 'text-[#D9733A]' : 'text-[#1A1612]'}>
-                                {isUnk ? 'Excl' : `${dim.score}/100`}
-                              </strong>
-                            </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+                      <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+                        <div>
+                          <div className="w-8 h-8 rounded-lg bg-[#1A1612] text-white flex items-center justify-center mb-3">
+                            <Sparkles className="w-4 h-4 text-[#8CE0A1]" />
                           </div>
+                          <h4 className="text-sm font-semibold text-[#1A1612]">1. Live Gemini AI</h4>
+                          <p className="text-xs text-[#6B665F] mt-1.5 leading-relaxed">
+                            Type any enterprise above to trigger real-time Google Search grounding via gemini-3.8-flash and automatic brief structuring.
+                          </p>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-[#E3E3DE] text-[11px] font-mono-tabular text-[#2E6B40]">
+                          Active in search bar above &uarr;
+                        </div>
+                      </div>
+
+                      <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+                        <div>
+                          <div className="w-8 h-8 rounded-lg bg-[#1A1612] text-white flex items-center justify-center mb-3">
+                            <FileCode2 className="w-4 h-4 text-[#8CE0A1]" />
+                          </div>
+                          <h4 className="text-sm font-semibold text-[#1A1612]">2. 7-Section Schema</h4>
+                          <p className="text-xs text-[#6B665F] mt-1.5 leading-relaxed">
+                            Pre-fills the standard 7-section markdown template in the editor for pasting customer notes and architecture details.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onChangeCustomMarkdown(BLANK_MD_TEMPLATE);
+                            onRunCustomAnalysis(BLANK_MD_TEMPLATE, 'New Prospect Dossier');
+                            setActiveTab('input');
+                          }}
+                          className="mt-4 w-full py-2 px-3 rounded-lg bg-[#1A1612] text-white text-xs font-medium hover:bg-[#332E28] transition-colors cursor-pointer"
+                        >
+                          Load Schema &amp; Edit
+                        </button>
+                      </div>
+
+                      <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+                        <div>
+                          <div className="w-8 h-8 rounded-lg bg-[#1A1612] text-white flex items-center justify-center mb-3">
+                            <Upload className="w-4 h-4 text-[#8CE0A1]" />
+                          </div>
+                          <h4 className="text-sm font-semibold text-[#1A1612]">3. Upload Dossier</h4>
+                          <p className="text-xs text-[#6B665F] mt-1.5 leading-relaxed">
+                            Import an existing .md file or transcript. FitLens automatically extracts workflows, scale, and compliance constraints.
+                          </p>
+                        </div>
+                        <label className="mt-4 w-full py-2 px-3 rounded-lg border border-[#1A1612] text-[#1A1612] text-xs font-medium hover:bg-[#1A1612] hover:text-white transition-colors text-center cursor-pointer">
+                          <span>Choose .md File</span>
                           <input
-                            type="range"
-                            min={0}
-                            max={50}
-                            step={5}
-                            aria-label={`${dim.name} weight`}
-                            value={dim.weight}
-                            onChange={(e) =>
-                              onUpdateWeight(dim.dimensionId, Number(e.target.value))
-                            }
-                            className="w-full accent-[#1A1612] h-1.5 bg-[#E3E3DE] rounded-lg cursor-pointer"
+                            type="file"
+                            accept=".md,.txt"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                  const content = ev.target?.result as string;
+                                  if (content) {
+                                    onChangeCustomMarkdown(content);
+                                    onRunCustomAnalysis(content, file.name.replace(/\.[^/.]+$/, ''));
+                                  }
+                                };
+                                reader.readAsText(file);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+                        <div>
+                          <div className="w-8 h-8 rounded-lg bg-[#1A1612] text-white flex items-center justify-center mb-3">
+                            <Database className="w-4 h-4 text-[#8CE0A1]" />
+                          </div>
+                          <h4 className="text-sm font-semibold text-[#1A1612]">4. TigerData Cloud DB</h4>
+                          <p className="text-xs text-[#6B665F] mt-1.5 leading-relaxed">
+                            Access accounts previously saved to the managed Timescale PostgreSQL cloud database.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab('database')}
+                          className="mt-4 w-full py-2 px-3 rounded-lg border border-[#E3E3DE] bg-white text-[#1A1612] hover:border-[#1A1612] text-xs font-medium transition-colors cursor-pointer"
+                        >
+                          Open Database Tab
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Stage 3: Executive Audio Briefing with gemini-3.8-flash-lite-tts */}
+                    <div className="p-4 rounded-xl bg-[#1C1916] text-[#F3F1EC] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                          <Volume2 className="w-5 h-5 text-[#8CE0A1]" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-semibold text-white">
+                              60-Second Audio Pitch Briefing
+                            </h4>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-tabular bg-[#5A9A6B]/20 text-[#8CE0A1]">
+                              gemini-3.8-flash-lite-tts
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[#A8A49C] mt-0.5">
+                            Architectural advisor voice pitch covering {company.name}&apos;s qualification score and key objections.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        {audioDataUrl && (
+                          <audio controls src={audioDataUrl} className="h-8 max-w-[200px]" autoPlay={isPlayingAudio} />
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleGenerateOrPlayAudio}
+                          disabled={isGeneratingAudio}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#5A9A6B] text-white hover:bg-[#4B855B] text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <span>{isGeneratingAudio ? 'Synthesizing Audio...' : audioDataUrl ? 'Replay Briefing' : 'Generate &amp; Listen'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                      {/* Left 7 cols: Graphic Workflow-to-Capability Node Flow First + Compact Visual Provenance Strip */}
+                      <div className="xl:col-span-7 flex flex-col gap-5">
+                        <div>
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <div>
+                              <h3 className="text-sm font-semibold text-[#1A1612]">
+                                Interactive Evidence Trail: Prospect Workflows &rarr; IOMETE Capabilities
+                              </h3>
+                              <p className="text-xs text-[#6B665F]">
+                                {scoreResult.oneSentenceReason}
+                              </p>
+                            </div>
+                            <span className="font-mono-tabular text-[11px] text-[#6B665F]">
+                              Click any node to inspect proof
+                            </span>
+                          </div>
+                          <WorkflowCapabilityFlowGraph
+                            evidenceItems={company.evidenceItems}
+                            selectedEvidenceId={effectiveEvidenceId}
+                            onSelectEvidence={setSelectedEvidenceId}
                           />
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
+
+                        {/* Graphic 3-Pillar Provenance Breakdown (Stated · Sourced · Assumed) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {company.executiveSummaryPlain.slice(0, 3).map((line, idx) => {
+                            const cap = line.capabilityId ? CAPABILITY_MAP[line.capabilityId] : undefined;
+                            const badgeColor =
+                              line.label === 'Sourced'
+                                ? 'text-[#2E6B40] bg-[#5A9A6B]/15'
+                                : line.label === 'Assumed'
+                                ? 'text-[#5B7C99] bg-[#5B7C99]/15'
+                                : 'text-[#1A1612] bg-[#E3E3DE]';
+                            return (
+                              <div
+                                key={idx}
+                                className="p-3.5 rounded-xl bg-[#F3F3EE] border border-[#E3E3DE] flex flex-col justify-between gap-2"
+                              >
+                                <div>
+                                  <span
+                                    className={`inline-block font-mono-tabular text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${badgeColor}`}
+                                  >
+                                    {line.label}
+                                  </span>
+                                  <p className="text-xs text-[#3D3934] mt-2 leading-relaxed line-clamp-3">
+                                    {line.text}
+                                  </p>
+                                </div>
+                                {cap && (
+                                  <a
+                                    href={cap.docUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-[11px] text-[#2E6B40] hover:underline pt-2 border-t border-[#E3E3DE]"
+                                  >
+                                    <span>Doc Ref</span>
+                                    <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Right 5 cols: Radar Heptagon + Live What-If Sliders directly below */}
+                      <div className="xl:col-span-5 flex flex-col gap-5 bg-[#FAF9F6] border border-[#E3E3DE] rounded-xl p-4">
+                        <div>
+                          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#E3E3DE]">
+                            <h3 className="text-sm font-semibold text-[#1A1612]">
+                              7-Dimension Lakehouse Fit Radar
+                            </h3>
+                            <span className="font-mono-tabular text-[11px] text-[#5A9A6B]">
+                              Live Topology
+                            </span>
+                          </div>
+                          <div className="py-2 flex items-center justify-center">
+                            <SevenDimensionRadarChart
+                              dimensionScores={scoreResult.dimensionScores}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Compact Live What-If Sliders right below Radar */}
+                        <div className="flex flex-col gap-2.5 pt-2 border-t border-[#E3E3DE]">
+                          {scoreResult.dimensionScores.map((dim) => {
+                            const isUnk = dim.status === 'unknown';
+                            return (
+                              <div key={dim.dimensionId} className="flex flex-col gap-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="font-medium text-[#1A1612] flex items-center gap-1.5">
+                                    <span>{dim.name}</span>
+                                    {isUnk && (
+                                      <span className="font-mono-tabular text-[10px] text-[#D9733A]">
+                                        [UNKNOWN GAP]
+                                      </span>
+                                    )}
+                                  </span>
+                                  <div className="font-mono-tabular text-[11px] text-[#6B665F] flex items-center gap-2">
+                                    <span>Weight: {dim.weight}%</span>
+                                    <span>·</span>
+                                    <strong className={isUnk ? 'text-[#D9733A]' : 'text-[#1A1612]'}>
+                                      {isUnk ? 'Excl' : `${dim.score}/100`}
+                                    </strong>
+                                  </div>
+                                </div>
+                                <input
+                                  type="range"
+                                  min={0}
+                                  max={50}
+                                  step={5}
+                                  aria-label={`${dim.name} weight`}
+                                  value={dim.weight}
+                                  onChange={(e) =>
+                                    onUpdateWeight(dim.dimensionId, Number(e.target.value))
+                                  }
+                                  className="w-full accent-[#1A1612] h-1.5 bg-[#E3E3DE] rounded-lg cursor-pointer"
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
             )}
 
             {activeTab === 'rubric' && (

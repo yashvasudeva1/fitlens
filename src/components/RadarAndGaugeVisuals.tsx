@@ -269,7 +269,7 @@ export const SevenDimensionRadarChart: React.FC<SevenDimensionRadarChartProps> =
           <span className="w-2.5 h-2.5 inline-block bg-[#5A9A6B]" /> Strong (&ge;75)
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 inline-block bg-[#5B7C99]" /> Possible (50–74)
+          <span className="w-2.5 h-2.5 inline-block bg-[#5B7C99]" /> Possible (50 to 74)
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 inline-block border border-[#D9733A] bg-[#FAF9F6]" /> Unknown / Gap
@@ -290,6 +290,16 @@ export const WorkflowCapabilityFlowGraph: React.FC<WorkflowCapabilityFlowGraphPr
   selectedEvidenceId,
   onSelectEvidence
 }) => {
+  if (evidenceItems.length === 0) {
+    return (
+      <div className="p-8 rounded-xl bg-[#FAF9F6] border border-[#E3E3DE] text-center">
+        <p className="text-xs text-[#6B665F]">
+          No workflow evidence items extracted yet. Run Live Gemini Research or upload a prospect .md file to map workflows to IOMETE lakehouse capabilities.
+        </p>
+      </div>
+    );
+  }
+
   const activeEv = evidenceItems.find((e) => e.id === selectedEvidenceId) || evidenceItems[0];
   const matchedCap = activeEv ? CAPABILITY_MAP[activeEv.capabilityId] : undefined;
 

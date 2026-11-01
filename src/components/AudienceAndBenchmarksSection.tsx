@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CAPABILITY_MAP } from '../data/iometeCapabilities';
 import {
   COMPETITIVE_LANDSCAPE,
@@ -14,7 +14,11 @@ import {
   FileText,
   ShieldAlert,
   HelpCircle,
-  Download
+  Download,
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  Sliders
 } from 'lucide-react';
 
 interface AudienceAndBenchmarksSectionProps {
@@ -38,6 +42,7 @@ export const AudienceAndBenchmarksSection: React.FC<AudienceAndBenchmarksSection
   onCopyText,
   copiedLabel
 }) => {
+  const [showBenchmarks, setShowBenchmarks] = useState(false);
   return (
     <>
       {/* Section 03: Two Audiences, One Source-Grounded Analysis */}
@@ -430,102 +435,187 @@ export const AudienceAndBenchmarksSection: React.FC<AudienceAndBenchmarksSection
             </div>
           </div>
 
-          {/* 3 Benchmark Case Cards (Forge Editorial Split Cards) */}
-          <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {SAMPLE_COMPANIES.map((sample) => {
-              const sampleScore = computeFitScore(
-                sample.evidenceItems,
-                DEFAULT_WEIGHTS,
-                sample.disqualifiers,
-                sample.unknowns
-              );
-              const isCurrent = sample.id === company.id;
+          {/* 3 Qualification Decision Guardrails (Replaces Permanent Static Data) */}
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-[#E3E3DE]">
+                  <span className="font-mono-tabular text-[11px] text-[#2E6B40] font-semibold">
+                    RULE 01 · STRONG FIT
+                  </span>
+                  <span className="text-[11px] font-mono-tabular text-[#6B665F]">Target Score: 80+</span>
+                </div>
+                <h3 className="text-base font-semibold text-[#1A1612] mt-3">
+                  Sovereignty &amp; Private Lakehouse
+                </h3>
+                <p className="text-xs text-[#524E48] mt-2 leading-relaxed">
+                  Accounts requiring on-premises, air-gapped, or private cloud VPC deployments paired with Apache Iceberg and Spark score high. IOMETE gives them full data sovereignty with zero SaaS vendor lock-in.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-[#E3E3DE] text-[11px] font-mono-tabular text-[#6B665F]">
+                Trigger: On-prem / K8s / Apache Iceberg
+              </div>
+            </div>
 
-              return (
-                <div
-                  key={sample.id}
-                  className={`rounded-2xl p-6 border transition-all flex flex-col justify-between gap-6 ${
-                    isCurrent
-                      ? 'bg-white border-[#1A1612] ring-1 ring-[#1A1612]'
-                      : 'bg-[#FAF9F6] border-[#E3E3DE] hover:border-[#8C867E]'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E3E3DE]">
-                      <span className="font-mono-tabular text-[11px] text-[#6B665F]">
-                        Expected: <strong className="text-[#1A1612]">{sample.expectedVerdict}</strong>
-                      </span>
-                      <span
-                        className={`font-mono-tabular text-xs font-semibold ${
-                          sampleScore.verdictBand === 'Strong fit'
-                            ? 'text-[#5A9A6B]'
-                            : sampleScore.verdictBand === 'Possible fit (needs discovery)'
-                            ? 'text-[#5B7C99]'
-                            : 'text-[#D9733A]'
+            <div className="p-6 rounded-2xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-[#E3E3DE]">
+                  <span className="font-mono-tabular text-[11px] text-[#D9733A] font-semibold">
+                    RULE 02 · NEGATIVE CONTROL
+                  </span>
+                  <span className="text-[11px] font-mono-tabular text-[#D9733A]">Hard Cap: 25/100</span>
+                </div>
+                <h3 className="text-base font-semibold text-[#1A1612] mt-3">
+                  Scale &amp; DevOps Disqualifier
+                </h3>
+                <p className="text-xs text-[#524E48] mt-2 leading-relaxed">
+                  Small databases (&lt; 100 GB) without growth pipelines or in-house DevOps trigger hard disqualifier caps. FitLens explicitly says NO to prevent reps from wasting cycles on poor-fit SaaS prospects.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-[#E3E3DE] text-[11px] font-mono-tabular text-[#D9733A]">
+                Trigger: Low scale / No Kubernetes
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#FAF9F6] border border-[#E3E3DE] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-[#E3E3DE]">
+                  <span className="font-mono-tabular text-[11px] text-[#5B7C99] font-semibold">
+                    RULE 03 · GAP HANDLING
+                  </span>
+                  <span className="text-[11px] font-mono-tabular text-[#6B665F]">Confidence Penalty</span>
+                </div>
+                <h3 className="text-base font-semibold text-[#1A1612] mt-3">
+                  Transparent Unknowns
+                </h3>
+                <p className="text-xs text-[#524E48] mt-2 leading-relaxed">
+                  Missing technical signals are never assumed as neutral 50. They are excluded from the weighted score average, visibly highlighted as gaps, and paired with precise questions to ask on the call.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-[#E3E3DE] text-[11px] font-mono-tabular text-[#5B7C99]">
+                Trigger: Missing dimension in .md
+              </div>
+            </div>
+          </div>
+
+          {/* Optional Benchmark Test Cases Toggle for Judges & Evaluators */}
+          <div className="mt-8 pt-6 border-t border-[#E3E3DE]">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-semibold text-[#1A1612]">
+                  Evaluation Benchmark Calibration Suite
+                </h3>
+                <p className="text-xs text-[#6B665F] mt-0.5">
+                  Pre-compiled test profiles used to verify scoring accuracy, disqualifiers, and unknown gap handling.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBenchmarks(!showBenchmarks)}
+                className="px-4 py-2 rounded-full text-xs font-medium bg-[#FAF9F6] border border-[#E3E3DE] hover:border-[#8C867E] text-[#1A1612] transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              >
+                <span>{showBenchmarks ? 'Hide Benchmark Profiles' : 'Show Benchmark Profiles (3 Cases)'}</span>
+                {showBenchmarks ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {showBenchmarks && (
+              <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-200">
+                {SAMPLE_COMPANIES.map((sample) => {
+                  const sampleScore = computeFitScore(
+                    sample.evidenceItems,
+                    DEFAULT_WEIGHTS,
+                    sample.disqualifiers,
+                    sample.unknowns
+                  );
+                  const isCurrent = sample.id === company.id;
+
+                  return (
+                    <div
+                      key={sample.id}
+                      className={`rounded-2xl p-6 border transition-all flex flex-col justify-between gap-6 ${
+                        isCurrent
+                          ? 'bg-white border-[#1A1612] ring-1 ring-[#1A1612]'
+                          : 'bg-[#FAF9F6] border-[#E3E3DE] hover:border-[#8C867E]'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E3E3DE]">
+                          <span className="font-mono-tabular text-[11px] text-[#6B665F]">
+                            Expected: <strong className="text-[#1A1612]">{sample.expectedVerdict}</strong>
+                          </span>
+                          <span
+                            className={`font-mono-tabular text-xs font-semibold ${
+                              sampleScore.verdictBand === 'Strong fit'
+                                ? 'text-[#5A9A6B]'
+                                : sampleScore.verdictBand === 'Possible fit (needs discovery)'
+                                ? 'text-[#5B7C99]'
+                                : 'text-[#D9733A]'
+                            }`}
+                          >
+                            Output: {sampleScore.overallScore}/100 ({sampleScore.verdictBand})
+                          </span>
+                        </div>
+
+                        <h4 className="text-base font-semibold text-[#1A1612] mt-4">
+                          {sample.name}
+                        </h4>
+                        <p className="text-xs text-[#6B665F] mt-1 leading-relaxed">
+                          {sample.samplePurpose}
+                        </p>
+
+                        <div className="mt-4 p-3.5 rounded-xl bg-[#F3F3EE] border border-[#E3E3DE] space-y-2">
+                          <div className="flex items-center justify-between text-[11px] font-mono-tabular">
+                            <span className="text-[#6B665F]">Data Scale</span>
+                            <span className="text-[#1A1612] font-medium truncate max-w-[180px]">
+                              {sample.dataVolume.split('(')[0]}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] font-mono-tabular">
+                            <span className="text-[#6B665F]">Evidence / Unknowns</span>
+                            <span className="text-[#1A1612] font-medium">
+                              {sample.evidenceItems.length} evidenced · {sample.unknowns.length} unknown
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] font-mono-tabular">
+                            <span className="text-[#6B665F]">Disqualifier Flags</span>
+                            <span
+                              className={
+                                sample.disqualifiers.length > 0
+                                  ? 'text-[#D9733A] font-semibold'
+                                  : 'text-[#5A9A6B] font-semibold'
+                              }
+                            >
+                              {sample.disqualifiers.length > 0
+                                ? `${sample.disqualifiers.length} Active (Caps Verdict)`
+                                : '0 Flags'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onSelectBenchmarkCompany(sample.id);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className={`w-full py-2.5 px-4 rounded-full text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                          isCurrent
+                            ? 'bg-[#1A1612] text-white'
+                            : 'bg-[#EFEFE9] text-[#1A1612] hover:bg-[#1A1612] hover:text-white'
                         }`}
                       >
-                        Output: {sampleScore.overallScore}/100 ({sampleScore.verdictBand})
-                      </span>
+                        <span>
+                          {isCurrent ? 'Currently Loaded in Workspace' : `Load ${sample.name.split(' ')[0]} into Workspace`}
+                        </span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-
-                    <h3 className="text-lg font-semibold text-[#1A1612] mt-4">
-                      {sample.name}
-                    </h3>
-                    <p className="text-xs text-[#6B665F] mt-1 leading-relaxed">
-                      {sample.samplePurpose}
-                    </p>
-
-                    {/* Mini Visual Dimension Breakdown */}
-                    <div className="mt-4 p-3.5 rounded-xl bg-[#F3F3EE] border border-[#E3E3DE] space-y-2">
-                      <div className="flex items-center justify-between text-[11px] font-mono-tabular">
-                        <span className="text-[#6B665F]">Data Scale</span>
-                        <span className="text-[#1A1612] font-medium truncate max-w-[180px]">
-                          {sample.dataVolume.split('(')[0]}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] font-mono-tabular">
-                        <span className="text-[#6B665F]">Evidence / Unknowns</span>
-                        <span className="text-[#1A1612] font-medium">
-                          {sample.evidenceItems.length} evidenced · {sample.unknowns.length} unknown
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] font-mono-tabular">
-                        <span className="text-[#6B665F]">Disqualifier Flags</span>
-                        <span
-                          className={
-                            sample.disqualifiers.length > 0
-                              ? 'text-[#D9733A] font-semibold'
-                              : 'text-[#5A9A6B] font-semibold'
-                          }
-                        >
-                          {sample.disqualifiers.length > 0
-                            ? `${sample.disqualifiers.length} Active (Caps Verdict)`
-                            : '0 Flags'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSelectBenchmarkCompany(sample.id);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className={`w-full py-2.5 px-4 rounded-full text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${
-                      isCurrent
-                        ? 'bg-[#1A1612] text-white'
-                        : 'bg-[#EFEFE9] text-[#1A1612] hover:bg-[#1A1612] hover:text-white'
-                    }`}
-                  >
-                    <span>
-                      {isCurrent ? 'Currently Loaded in Workspace' : `Load ${sample.name.split(' ')[0]} into Workspace`}
-                    </span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Competitive Landscape Matrix (PRD Section 3.1) */}

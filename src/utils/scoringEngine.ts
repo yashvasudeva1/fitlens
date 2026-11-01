@@ -23,6 +23,81 @@ export interface FitDimensionSpec {
 
 export const RUBRIC_VERSION = 'FitLens Deterministic Rubric v1.4 (Temp 0.0)';
 
+export const EMPTY_COMPANY_ANALYSIS: SampleCompanyAnalysis = {
+  id: 'empty-account',
+  name: 'No Account Selected',
+  shortTag: 'Awaiting Input',
+  deploymentBadge: 'Awaiting Prospect Input',
+  industry: 'Unspecified',
+  headcount: 'N/A',
+  dataVolume: '0 GB / Unspecified',
+  incumbentStack: 'None specified',
+  expectedVerdict: 'Possible fit (needs discovery)',
+  samplePurpose: 'Upload a markdown profile, query live Gemini company research, or select a saved prospect from TigerData.',
+  rawMarkdown: '',
+  executiveSummaryPlain: [
+    {
+      text: 'No prospect account loaded. Provide a company profile via markdown upload, Gemini live research, or TigerData cloud database to calculate fit score.',
+      label: 'Assumed'
+    }
+  ],
+  evidenceItems: [],
+  disqualifiers: [],
+  unknowns: [
+    {
+      id: 'u-empty-1',
+      dimensionId: 'sovereignty',
+      missingTopic: 'Infrastructure and Sovereignty Requirements',
+      impactOnConfidence: 'No prospect data uploaded yet.',
+      discoveryQuestion: 'Does the customer run on-premises, private cloud, or public cloud?',
+      whoToAsk: 'Enterprise Architect / VP Infrastructure'
+    },
+    {
+      id: 'u-empty-2',
+      dimensionId: 'scale',
+      missingTopic: 'Data Scale and Daily Ingestion Volume',
+      impactOnConfidence: 'Missing volume metrics prevents lakehouse sizing.',
+      discoveryQuestion: 'What is the total data volume and daily incremental ingestion rate?',
+      whoToAsk: 'Data Engineering Lead'
+    }
+  ],
+  topUseCases: [],
+  objections: [],
+  competitiveContext: [],
+  nextSteps: [
+    {
+      stepNumber: 1,
+      category: 'Discovery Question',
+      title: 'Provide Prospect Markdown or Run Gemini Live Search',
+      detail: 'Provide an architecture and workload description to compute fit score and verify citations against docs.iomete.com.'
+    }
+  ],
+  repTalkTrack: {
+    openingHook: 'Provide prospect details to generate talking track.',
+    callAgenda: [
+      'Upload company specification or run Gemini AI research',
+      'Score against 7 deterministic rubric dimensions',
+      'Review objections, disqualifiers and discovery plan'
+    ],
+    killerQuestions: [
+      'What is your current data volume and cloud or on-prem deployment model?',
+      'Are you experiencing vendor lock-in or unpredictable cloud warehouse billing?'
+    ],
+    landminesToAvoid: [
+      'Do not quote pricing before sizing daily ingestion and Spark cluster concurrency.'
+    ]
+  },
+  buyerMemo: {
+    subject: 'IOMETE Evaluation Memo - Pending Prospect Input',
+    toLine: 'CFO / VP Architecture',
+    tlDr: 'Pending company details to compute TCO and lakehouse match.',
+    whyEvaluateNow: 'Evaluate modern open-source Lakehouse architecture without vendor lock-in.',
+    cfoCostSection: 'Compute and storage decoupled; zero per-query runtime tax.',
+    cisoSecuritySection: 'Runs in customer VPC or on-premise; data never leaves security perimeter.',
+    recommendedPilot: 'Provide company profile to receive tailored 2-week POC plan.'
+  }
+};
+
 export const DEFAULT_DIMENSIONS: FitDimensionSpec[] = [
   {
     id: 'sovereignty',
@@ -165,6 +240,35 @@ export function computeFitScore(
   disqualifiers: DisqualifierFlag[] = [],
   explicitUnknowns: UnknownGap[] = []
 ): FitScoreResult {
+  if (evidenceItems.length === 0) {
+    return {
+      overallScore: 0,
+      rawUncappedScore: 0,
+      verdictBand: 'Possible fit (needs discovery)',
+      confidenceScore: 0,
+      confidenceLevel: 'Low',
+      isCappedByDisqualifier: false,
+      activeDisqualifiers: [],
+      dimensionScores: DEFAULT_DIMENSIONS.map((dim) => ({
+        dimensionId: dim.id,
+        name: dim.name,
+        shortName: dim.shortName,
+        weight: Math.max(0, weights[dim.id] ?? dim.defaultWeight),
+        normalizedActiveWeight: 0,
+        status: 'unknown' as const,
+        score: null,
+        evidenceCount: 0,
+        supportingCount: 0,
+        hurtingCount: 0,
+        evidenceItems: []
+      })),
+      knownDimensionCount: 0,
+      unknownDimensionCount: DEFAULT_DIMENSIONS.length,
+      oneSentenceReason: 'Awaiting prospect input. Upload markdown, run Live Gemini Research, or load from TigerData.',
+      rubricVersion: RUBRIC_VERSION
+    };
+  }
+
   const dimensionScores: DimensionScoreDetail[] = [];
 
   let activeWeightSum = 0;
@@ -992,7 +1096,7 @@ export function generateMarkdownExport(
   lines.push('');
 
   lines.push('## 10. Assumptions, Rubric Math & Verification Stamp');
-  lines.push('| Dimension | User Weight | Active Normalized Weight | Score (0–100) | Status |');
+  lines.push('| Dimension | User Weight | Active Normalized Weight | Score (0 to 100) | Status |');
   lines.push('| :--- | :--- | :--- | :--- | :--- |');
   for (const d of scoreResult.dimensionScores) {
     lines.push(
